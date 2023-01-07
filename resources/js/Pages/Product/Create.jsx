@@ -1,8 +1,18 @@
+import SelectInput from "@/Components/SelectInput";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
 import React from "react";
+import Select from "react-select";
 
 const CreateProduct = ({ auth, categories }) => {
+    const options = [];
+
+    categories.map((category, index) => {
+        options.push({
+            label: category.category_name,
+            value: category.id,
+        });
+    });
 
     const { data, setData, post, processing, errors } = useForm({
         item_name: "",
@@ -11,7 +21,7 @@ const CreateProduct = ({ auth, categories }) => {
         stock_qty: "",
         category_id: "",
     });
-
+console.log(data.category_id);
     function submit(e) {
         e.preventDefault();
         post("/product");
@@ -54,9 +64,21 @@ const CreateProduct = ({ auth, categories }) => {
                         >
                             <div className="space-y-3 rounded-md shadow-sm">
                                 <div>
-                                    <label for="item_name" className="sr-only">
-                                        Product code
-                                    </label>
+                                    <label htmlFor="">Category</label>
+                                    <SelectInput
+                                        options={options}
+                                        id="category_id"
+                                        name="category_id"
+                                        onChange={(e) =>
+                                            setData(
+                                                "category_id",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label for="item_name">Product code</label>
                                     <input
                                         onChange={(e) =>
                                             setData("item_code", e.target.value)
@@ -93,7 +115,10 @@ const CreateProduct = ({ auth, categories }) => {
                                         </option>
                                         {categories.map((category, index) => {
                                             return (
-                                                <option value={category.id} key={index}>
+                                                <option
+                                                    value={category.id}
+                                                    key={index}
+                                                >
                                                     {category.category_name}
                                                 </option>
                                             );

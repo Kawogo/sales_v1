@@ -25,6 +25,7 @@ const Index = ({ auth, products, flash }) => {
                         Add new item
                     </InertiaLink>
                 </div>
+             
                 <hr />
                 <div className="mt-3 relative overflow-x-auto shadow-md sm:rounded-lg p-5">
                     <table className="w-full text-sm text-left text-white-500 ">
