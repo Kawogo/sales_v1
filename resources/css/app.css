@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* //SELECT_2 STYLE */
+/* CSS */
+/* @layer components {
+.form-input {
+    @apply font-medium text-base leading-6 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out;
+  }
+} */
+/* //SELECT_2 STYLE ENDS */
