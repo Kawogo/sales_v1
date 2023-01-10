@@ -89,7 +89,7 @@ const Index = ({ auth, products, flash }) => {
                                         <td className="px-6 py-4 flex">
                                             <InertiaLink
                                                 href={route(
-                                                    "category.edit",
+                                                    "product.edit",
                                                     product.id
                                                 )}
                                                 className="font-medium text-blue-600 hover:underline"

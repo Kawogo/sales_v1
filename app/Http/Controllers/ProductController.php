@@ -19,8 +19,6 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category')->get()->all();
-        // var_dump($products);
-        // exit;
         return Inertia::render('Product/Index', [
             'products' => $products
         ]);
@@ -71,7 +69,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+       return Inertia::render('Product/Edit', ['product' => $product , 'categories' => Category::query()->get()->all()]);
     }
 
     /**
@@ -81,9 +79,10 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $ProductRequest, Product $product)
     {
-        //
+        $product->update($ProductRequest->validated());
+        return Redirect::route('product.index')->with('message', 'Product changed successfully!');
     }
 
     /**

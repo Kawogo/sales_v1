@@ -1,12 +1,12 @@
-import SelectInput from "@/Components/SelectInput";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { InertiaLink, useForm } from "@inertiajs/inertia-react";
 import React from "react";
 import Select from "react-select";
 
-const CreateProduct = ({ auth, categories }) => {
+const EditProduct = ({ auth, product, categories }) => {
+  
+    // setting categories options
     const options = [];
-
     categories.map((category, index) => {
         options.push({
             label: category.category_name,
@@ -14,12 +14,23 @@ const CreateProduct = ({ auth, categories }) => {
         });
     });
 
-    const { data, setData, post, processing, errors } = useForm({
-        item_name: "",
-        item_code: "",
-        price: "",
-        stock_qty: "",
-        category_id: "",
+
+    //setting a selected value (category)
+    const categoryValue = {};
+    categories.map((cat) => {
+        if (cat.id === product.category_id) {
+            categoryValue.label = cat.category_name;
+            categoryValue.value = cat.id;
+        }
+        return;
+    });
+
+    const { data, setData, put, processing, errors } = useForm({
+        item_name: product.item_name || "",
+        item_code: product.item_code || "",
+        price: product.price || "",
+        stock_qty: product.stock_qty || "",
+        category_id: product.category_id || "",
     });
 
     const handleSelected = (selectedOption) => {
@@ -28,7 +39,7 @@ const CreateProduct = ({ auth, categories }) => {
 
     function submit(e) {
         e.preventDefault();
-        post("/product");
+        put(route("product.update", product.id));
     }
 
     return (
@@ -70,11 +81,11 @@ const CreateProduct = ({ auth, categories }) => {
                                 <div>
                                     <label htmlFor="">Category</label>
                                     <Select
-                                        // isSearchable={true}
                                         name="category_id"
                                         id="category_id"
                                         options={options}
                                         onChange={handleSelected}
+                                        value={categoryValue}
                                     />
                                     {errors.item_code && (
                                         <span className="text-sm text-red-500">
@@ -167,7 +178,7 @@ const CreateProduct = ({ auth, categories }) => {
                                     type="submit"
                                     className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Add Item
+                                    Update Item
                                 </button>
                             </div>
                         </form>
@@ -178,4 +189,4 @@ const CreateProduct = ({ auth, categories }) => {
     );
 };
 
-export default CreateProduct;
+export default EditProduct;
