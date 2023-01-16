@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SaleController extends Controller
 {
@@ -14,7 +16,9 @@ class SaleController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Sale/Index',[
+            'sales' => Sale::query()->get()->all()
+        ]);
     }
 
     /**
@@ -24,7 +28,7 @@ class SaleController extends Controller
      */
     public function create()
     {
-        //
+       return Inertia::render('Sale/Create', ['products' => Product::query()->get()->all()]);
     }
 
     /**
@@ -35,7 +39,9 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
+        // print_r(json_decode($request));
+        // exit;
     }
 
     /**

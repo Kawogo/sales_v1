@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SaleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,5 +40,6 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('/category',CategoryController::class);
 Route::resource('/product',ProductController::class);
+Route::resource('/sale',SaleController::class);
 
 require __DIR__.'/auth.php';
