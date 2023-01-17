@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class SaleController extends Controller
@@ -17,7 +19,7 @@ class SaleController extends Controller
     public function index()
     {
         return Inertia::render('Sale/Index',[
-            'sales' => Sale::query()->get()->all()
+            'sales' => Sale::with('product')->get()->all()
         ]);
     }
 
@@ -39,9 +41,28 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
-        // print_r(json_decode($request));
-        // exit;
+        // $validator = Validator::make($request->all(), [
+        //     'formFields.*.item_id' => 'required|numeric',
+        //     'formFields.*.sale_qty' => 'required|numeric',
+        //     'formFields.*.sale_discount' => 'required|numeric',
+        //     'formFields.*.sale_total' => 'required|numeric',
+        //     'formFields.*.price' => 'required|numeric',
+        // ]);
+        
+        // if ($validator->fails()) {
+        //     $errors = $validator->errors();
+        //     return $errors;
+        // }
+
+        $data = $request->input('formFields');
+
+        foreach ($data as $sale) {
+            # code...
+            Sale::create($sale);
+        }
+
+        return Redirect::route('sale.index')->with('message', 'Sale added successfully!');
+
     }
 
     /**

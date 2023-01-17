@@ -6,6 +6,7 @@ import { InertiaLink } from "@inertiajs/inertia-react";
 import React from "react";
 
 const Index = ({ auth, sales, flash }) => {
+    console.log(sales);
     const deleteHandler = (id) => {
         confirm("Are you sure") &&
             Inertia.delete(route("sale.destroy", id));
@@ -34,13 +35,16 @@ const Index = ({ auth, sales, flash }) => {
                                     Item
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Qty
-                                </th>
-                                <th scope="col" className="px-6 py-3">
                                     Item price
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Sale discount
+                                    Qty
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Discount
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Total
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Action
@@ -56,7 +60,13 @@ const Index = ({ auth, sales, flash }) => {
                                             scope="row"
                                             className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
                                         >
-                                            {sale.item_id}
+                                            {sale.product.item_name}
+                                        </th>
+                                        <th
+                                            scope="row"
+                                            className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
+                                        >
+                                            {sale.product.price.toLocaleString()}
                                         </th>
                                         <th
                                             scope="row"
@@ -68,13 +78,13 @@ const Index = ({ auth, sales, flash }) => {
                                             scope="row"
                                             className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
                                         >
-                                            {sale.sale_discount}
+                                            {sale.sale_discount.toLocaleString()}
                                         </th>
                                         <th
                                             scope="row"
                                             className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
                                         >
-                                            {sale.sale_discount}
+                                            {sale.sale_total.toLocaleString()}
                                         </th>
                                         <td className="px-6 py-4 flex">
                                             <InertiaLink
