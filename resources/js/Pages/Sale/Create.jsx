@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import Select from "react-select";
 
 const CreateSale = ({ auth, products }) => {
+    const [search, setSearch] = useState("");
     const options = [];
 
     products.map((product, index) => {
@@ -58,10 +59,17 @@ const CreateSale = ({ auth, products }) => {
         setSaleTotal(tempTotal);
     };
 
-    const addRow = (e) => {
-        e.preventDefault();
+    const addRow = (productId) => {
+        // e.preventDefault();
+        // console.log(product);
+        let clickedProduct = products.forEach(product => {
+          if (product.id === productId) {
+            return product;
+          }
+        });
+
         let newRow = {
-            item_id: "",
+            item_id: productId,
             sale_qty: "",
             sale_total: "",
             price: "",
@@ -113,173 +121,103 @@ const CreateSale = ({ auth, products }) => {
                                 </svg>
                             </InertiaLink>
                         </div>
-                        <div className="grid md:grid-cols-3 gap-3">
-                            <div className="space-y-8 rounded-md shadow-sm md:col-span-1">
-                                <form
-                                    className="space-y-2"
-                                    onSubmit={handleSubmit}
-                                    action={route("sale.store")}
-                                >
-                                    {formFields.map((form, index) => {
-                                        return (
-                                            <>
-                                                <div>
-                                                    <label htmlFor="">
-                                                        Item
-                                                    </label>
-                                                    <Select
-                                                        name="item_id"
-                                                        id=""
-                                                        options={options}
-                                                        onChange={(value) =>
-                                                            handleSelected(
-                                                                value,
-                                                                index
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <label htmlFor="">
-                                                        Qty
-                                                    </label>
-                                                    <input
-                                                        onChange={(e) =>
-                                                            handleInputChange(
-                                                                e,
-                                                                index
-                                                            )
-                                                        }
-                                                        type="number"
-                                                        name="sale_qty"
-                                                        id=""
-                                                        className="block w-full leading-5 py-2 px-3 border-gray-300 bg-white rounded-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                                                    />
-                                                </div>
-                                                <div className="flex">
-                                                    <span onClick={addRow}>
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke-width="1.5"
-                                                            stroke="currentColor"
-                                                            className="w-6 h-6 cursor-pointer text-blue-600"
-                                                        >
-                                                            <path
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
-                                                                d="M12 4.5v15m7.5-7.5h-15"
-                                                            />
-                                                        </svg>
-                                                    </span>
-                                                    <span>
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke-width="1.5"
-                                                            stroke="currentColor"
-                                                            className="w-6 h-6 cursor-pointer text-red-600"
-                                                        >
-                                                            <path
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
-                                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                                                            />
-                                                        </svg>
-                                                    </span>
-                                                </div>
-                                                <hr />
-                                            </>
-                                        );
-                                    })}
-                                    <hr />
-                                    <div>
-                                        <label htmlFor="">Discount</label>
-                                        <input
-                                            onChange={(e) =>
-                                                handleDiscount(e.target.value)
-                                            }
-                                            type="number"
-                                            name="sale_discount"
-                                            id=""
-                                            className="block w-full leading-5 py-2 px-3 border-gray-300 bg-white rounded-md focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                                        />
-                                    </div>
-                                    <button
-                                        className="px-3 py-2 mt-8 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        type="submit"
-                                    >
-                                        Submit
-                                    </button>
-                                </form>
-                            </div>
+                        <div className="mt-4 grid gap-3 p-3 md:grid-cols-3">
                             <div className="md:col-span-2">
-                                <h5>SALE SUMMARY</h5>
-                                <div className="">
-                                    <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                        <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
-                                            <div className="overflow-hidden">
-                                                <table className="min-w-full text-center">
-                                                    <thead className="border-b bg-white">
-                                                        <tr>
-                                                            <th
-                                                                scope="col"
-                                                                className="text-sm font-medium text-gray-900 px-6 py-2"
-                                                            >
-                                                                Item
-                                                            </th>
-                                                            <th
-                                                                scope="col"
-                                                                className="text-sm font-medium text-gray-900 px-6 py-2"
-                                                            >
-                                                                Qty
-                                                            </th>
-                                                            <th
-                                                                scope="col"
-                                                                className="text-sm font-medium text-gray-900 px-6 py-2"
-                                                            >
-                                                                Price
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {formFields.map(
-                                                            (field, index) => {
-                                                                return (
-                                                                    <tr
-                                                                        className="bg-white border-b"
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                                            {
-                                                                                field.item_name
-                                                                            }
-                                                                        </td>
-                                                                        <td className="text-sm text-gray-900 font-light px-6 py-2 whitespace-nowrap">
-                                                                            {
-                                                                                field.sale_qty
-                                                                            }
-                                                                        </td>
-                                                                        <td className="text-sm text-gray-900 font-light px-6 py-2 whitespace-nowrap">
-                                                                            {field.sale_total.toLocaleString()}
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            }
-                                                        )}
-                                                    </tbody>
-                                                    SUBTOTAL AMOUNT: {saleTotal} <br />
-                                                    DISCOUNT: {discount} <br />
-                                                    TOTAL AMOUNT:{" "}
-                                                    {saleTotal - discount}
-                                                </table>
+                                <div className="flex gap-2">
+                                    <input
+                                        className="w-full rounded-sm border border-violet-400 px-5 py-2 focus:outline-none"
+                                        type="text"
+                                        name=""
+                                        id=""
+                                        placeholder="Search product by name..."
+                                        onChange={(e) => {
+                                            setSearch(e.target.value);
+                                        }}
+                                    />
+                                </div>
+                                <br />
+                                <hr />
+                                <br />
+                                <div>
+                                    <div className="mt-4 grid grid-cols-2 gap-y-3 gap-x-1 sm:grid-cols-2 md:grid-cols-4">
+                                        {products
+                                            .filter((product) => {
+                                                return search.toLowerCase() ===
+                                                    ""
+                                                    ? product
+                                                    : product.item_name
+                                                          .toLowerCase()
+                                                          .includes(search);
+                                            })
+                                            .map((product) => {
+                                                return (
+                                                    <div key={product.id} onClick={(e) => {
+                                                      addRow(product.id)
+                                                    }} className="w-40 cursor-pointer rounded-sm border border-violet-300 p-3 hover:bg-blue-50">
+                                                        <h6 className="text-center">
+                                                            {product.item_name}
+                                                        </h6>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col space-y-2 rounded-md bg-violet-50 p-5 md:col-span-1">
+                                <h2 className="text-lg font-medium">
+                                    CART (4)
+                                </h2>
+                                {formFields.map((field) => {
+                                    if (field.item_id) {
+                                        return (
+                                            <div key={field.item_id} className="flex w-auto justify-between rounded-sm bg-white p-5">
+                                                <h4 className="text-sm font-medium uppercase text-violet-600">
+                                                    Product 01
+                                                </h4>
+                                                <input
+                                                    className="w-16 rounded-sm border border-violet-400 p-1 focus:outline-none"
+                                                    type="number"
+                                                    name=""
+                                                    id=""
+                                                />
+                                                <h4 className="text-sm font-medium text-violet-600">
+                                                    2,000/=
+                                                </h4>
                                             </div>
-                                        </div>
+                                        );
+                                    }
+                                })}
+                                <div className="p-5 border-2 border-violet-400 border-dashed">
+                                <input
+                                        className="mb-2 w-full rounded-sm border border-violet-400 px-5 py-2 focus:outline-none focus:border-0"
+                                        type="text"
+                                        name=""
+                                        id=""
+                                        placeholder="Enter total discount.."
+                                    />
+                                    <div className="flex justify-between">
+                                        <h2 className="text-sm font-medium">
+                                            Total discount:
+                                        </h2>
+                                        <h2 className="text-sm font-medium">
+                                            5,000/=
+                                        </h2>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <h2 className="text-sm font-medium">
+                                            Subtotal:
+                                        </h2>
+                                        <h2 className="text-sm font-medium">
+                                            5,000/=
+                                        </h2>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <h2 className="text-sm font-medium">
+                                            Total:
+                                        </h2>
+                                        <h2 className="text-sm font-medium">
+                                            5,000/=
+                                        </h2>
                                     </div>
                                 </div>
                             </div>
