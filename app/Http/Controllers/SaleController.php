@@ -54,7 +54,10 @@ class SaleController extends Controller
         //     return $errors;
         // }
 
-        $data = $request->input('formFields');
+        $data = $request->input('cartItems');
+
+        // dd($data[0]['sale_id']);
+        $sale[0]['sale_id'] = uniqid();
 
         foreach ($data as $sale) {
             # code...

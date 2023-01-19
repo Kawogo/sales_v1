@@ -6,10 +6,8 @@ import { InertiaLink } from "@inertiajs/inertia-react";
 import React from "react";
 
 const Index = ({ auth, sales, flash }) => {
-    console.log(sales);
     const deleteHandler = (id) => {
-        confirm("Are you sure") &&
-            Inertia.delete(route("sale.destroy", id));
+        confirm("Are you sure") && Inertia.delete(route("sale.destroy", id));
     };
     return (
         <Authenticated auth={auth}>
@@ -25,7 +23,7 @@ const Index = ({ auth, sales, flash }) => {
                         Make a new sale
                     </InertiaLink>
                 </div>
-             
+
                 <hr />
                 <div className="mt-3 relative overflow-x-auto shadow-md sm:rounded-lg p-5">
                     <table className="w-full text-sm text-left text-white-500 ">
@@ -41,9 +39,6 @@ const Index = ({ auth, sales, flash }) => {
                                     Qty
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Discount
-                                </th>
-                                <th scope="col" className="px-6 py-3">
                                     Total
                                 </th>
                                 <th scope="col" className="px-6 py-3">
@@ -52,10 +47,12 @@ const Index = ({ auth, sales, flash }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sales.map((sale,index) => {
-
+                            {sales.map((sale, index) => {
                                 return (
-                                    <tr className="bg-white border-b" key={index}>
+                                    <tr
+                                        className="bg-white border-b"
+                                        key={index}
+                                    >
                                         <th
                                             scope="row"
                                             className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
@@ -73,12 +70,6 @@ const Index = ({ auth, sales, flash }) => {
                                             className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
                                         >
                                             {sale.sale_qty}
-                                        </th>
-                                        <th
-                                            scope="row"
-                                            className="px-6 py-4 font-medium text-dark-900 whitespace-nowrap"
-                                        >
-                                            {sale.sale_discount.toLocaleString()}
                                         </th>
                                         <th
                                             scope="row"
@@ -114,10 +105,9 @@ const Index = ({ auth, sales, flash }) => {
                                                 href="#"
                                                 className="font-medium text-red-600 hover:underline"
                                                 onClick={deleteHandler.bind(
-                                                        null,
-                                                        sale.id
-                                                    )
-                                                }
+                                                    null,
+                                                    sale.id
+                                                )}
                                             >
                                                 <svg
                                                     className="w-6 h-6"

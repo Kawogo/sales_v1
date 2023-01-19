@@ -1,3 +1,4 @@
+import MessageAlert from "@/Components/MessageAlert";
 import SelectInput from "@/Components/SelectInput";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Inertia } from "@inertiajs/inertia";
@@ -7,90 +8,79 @@ import Select from "react-select";
 
 const CreateSale = ({ auth, products }) => {
     const [search, setSearch] = useState("");
-    const options = [];
+    const [cartItems, setCartItems] = useState([]);
+    const [alert, setAlert] = useState(false);
+    const [discount, setDiscount] = useState(0);
+    // const [subTotal, setSubTotal] = useState(0);
 
-    products.map((product, index) => {
-        options.push({
-            label: product.item_name,
-            value: product.id,
-        });
+    //calculating a subtotal
+    let subTotal = 0;
+
+    cartItems.forEach((item) => {
+        subTotal += item.sale_total;
     });
 
-    const [formFields, setFormFields] = useState([
-        {
-            item_id: "",
-            sale_qty: "",
-            sale_total: "",
-            price: "",
-        },
-    ]);
-
-    const [discount, setDiscount] = useState(0);
-    const [saleTotal, setSaleTotal] = useState(0);
-
-    const handleSelected = (selectedOption, index) => {
-        let formData = [...formFields];
-        formData[index]["item_id"] = selectedOption.value;
-        //setting sale price
-        products.forEach((product) => {
-            if (product.id === formData[index]["item_id"]) {
-                formData[index]["price"] = product.price;
-                formData[index]["item_name"] = product.item_name;
-            }
-        });
-        setFormFields(formData);
-    };
-
-    const handleInputChange = (e, index) => {
-        e.preventDefault();
-        let formData = [...formFields];
-        formData[index][e.target.name] = e.target.value;
-        formData[index]["sale_id"] = 1111;
-        //setting sale total
-        formData[index]["sale_total"] =
-            formData[index]["sale_qty"] * formData[index]["price"];
-        setFormFields(formData);
-
-        //setting sale total
-        let tempTotal = 0;
-        formFields.forEach((field) => {
-            tempTotal += field.sale_total;
-        });
-        setSaleTotal(tempTotal);
-    };
-
-    const addRow = (productId) => {
-        // e.preventDefault();
-        // console.log(product);
-        let clickedProduct = products.forEach(product => {
-          if (product.id === productId) {
-            return product;
-          }
-        });
-
-        let newRow = {
-            item_id: productId,
-            sale_qty: "",
-            sale_total: "",
-            price: "",
+    //add item to cart
+    const addToCart = (product) => {
+        let newItem = {
+            item_id: product.id,
+            sale_qty: 1,
+            sale_total: product.price,
+            item_name: product.item_name,
+            price: product.price,
         };
-        setFormFields([...formFields, newRow]);
+        //check if the item is on the cart
+        let isItemExists = cartItems.find(
+            (item) => item.item_id === product.id
+        );
+        if (isItemExists) {
+            setAlert(true);
+            return;
+        }
+        setCartItems([...cartItems, newItem]);
+        setAlert(false);
     };
 
-    const handleDiscount = (discount) => {
-        setDiscount(discount);
-    };
-
-    function handleSubmit(e) {
-        e.preventDefault();
-
-        formFields.forEach((field) => {
-            field.sale_discount = +discount;
+    //increase cart quantity
+    const increaseCartItem = (productId) => {
+        let updatedCartItems = cartItems.map((item) => {
+            if (item.item_id === productId) {
+                item.sale_qty++;
+                item.sale_total = item.sale_qty * item.price;
+            }
+            return item;
         });
+        setCartItems(updatedCartItems);
+    };
 
-        console.log(formFields);
-        Inertia.post("/sale", { formFields });
-    }
+    //decrease cart quantity
+    const decreaseCartItem = (productId) => {
+        let updatedCartItems = cartItems.map((item) => {
+            if (item.item_id === productId) {
+                if (item.sale_qty > 1) {
+                    item.sale_qty--;
+                    item.sale_total = item.sale_qty * item.price;
+                }
+            }
+            return item;
+        });
+        setCartItems(updatedCartItems);
+    };
+
+    //remove item from cart
+    const removeItem = (productId) => {
+        let newItems = cartItems.filter((item) => item.item_id !== productId);
+        setCartItems(newItems);
+    };
+
+    const submitSale = (e) => {
+        e.preventDefault();
+        //add discount
+        cartItems.forEach((item) => {
+            item.sale_discount = discount;
+        });
+        Inertia.post("/sale", { cartItems });
+    };
 
     return (
         <Authenticated auth={auth}>
@@ -139,6 +129,15 @@ const CreateSale = ({ auth, products }) => {
                                 <hr />
                                 <br />
                                 <div>
+                                    {alert && (
+                                        <div>
+                                            <MessageAlert
+                                                message="Product already on cart!"
+                                                type="error"
+                                            ></MessageAlert>
+                                        </div>
+                                    )}
+
                                     <div className="mt-4 grid grid-cols-2 gap-y-3 gap-x-1 sm:grid-cols-2 md:grid-cols-4">
                                         {products
                                             .filter((product) => {
@@ -151,9 +150,14 @@ const CreateSale = ({ auth, products }) => {
                                             })
                                             .map((product) => {
                                                 return (
-                                                    <div key={product.id} onClick={(e) => {
-                                                      addRow(product.id)
-                                                    }} className="w-40 cursor-pointer rounded-sm border border-violet-300 p-3 hover:bg-blue-50">
+                                                    <div
+                                                        key={product.id}
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            addToCart(product);
+                                                        }}
+                                                        className="w-40 cursor-pointer rounded-sm border border-violet-300 p-3 hover:bg-blue-50"
+                                                    >
                                                         <h6 className="text-center">
                                                             {product.item_name}
                                                         </h6>
@@ -167,48 +171,133 @@ const CreateSale = ({ auth, products }) => {
                                 <h2 className="text-lg font-medium">
                                     CART (4)
                                 </h2>
-                                {formFields.map((field) => {
-                                    if (field.item_id) {
-                                        return (
-                                            <div key={field.item_id} className="flex w-auto justify-between rounded-sm bg-white p-5">
-                                                <h4 className="text-sm font-medium uppercase text-violet-600">
-                                                    Product 01
-                                                </h4>
-                                                <input
-                                                    className="w-16 rounded-sm border border-violet-400 p-1 focus:outline-none"
-                                                    type="number"
+
+                                {cartItems.map((product) => {
+                                    return (
+                                        <div
+                                            key={product.item_id}
+                                            className="flex w-auto justify-between items-center rounded-sm bg-white p-5"
+                                        >
+                                            <h4 className="text-sm font-sm text-violet-600">
+                                                {product.item_name}
+                                            </h4>
+                                            <div className="flex justify-between items-center gap-4">
+                                                <span
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        increaseCartItem(
+                                                            product.item_id
+                                                        );
+                                                    }}
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        strokeWidth="1.5"
+                                                        stroke="currentColor"
+                                                        className="h-5 w-5 cursor-pointer"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                                <span>{product.sale_qty}</span>
+                                                {/* <input
+                                                    value={product.sale_qty}
+                                                    className="w-10 text-center rounded-sm border border-violet-400 p-1 focus:outline-none"
+                                                    type="text"
                                                     name=""
                                                     id=""
-                                                />
-                                                <h4 className="text-sm font-medium text-violet-600">
-                                                    2,000/=
-                                                </h4>
+                                                    onChange={(e) => {
+                                                        e.preventDefault();
+                                                        updateCartItem(
+                                                            product.item_id,
+                                                            "increase"
+                                                        );
+                                                    }}
+                                                /> */}
+                                                <span>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        strokeWidth="1.5"
+                                                        stroke="currentColor"
+                                                        className="h-5 w-5 cursor-pointer"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            decreaseCartItem(
+                                                                product.item_id
+                                                            );
+                                                        }}
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                        />
+                                                    </svg>
+                                                </span>
                                             </div>
-                                        );
-                                    }
+                                            <h4 className="text-sm font-medium text-violet-600">
+                                                {product.sale_total.toLocaleString()}
+                                            </h4>
+                                            <span>
+                                                <svg
+                                                    className="w-5 h-5 text-red-600 cursor-pointer"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        removeItem(
+                                                            product.item_id
+                                                        );
+                                                    }}
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="1"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    ></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    );
                                 })}
+
                                 <div className="p-5 border-2 border-violet-400 border-dashed">
-                                <input
+                                    <input
                                         className="mb-2 w-full rounded-sm border border-violet-400 px-5 py-2 focus:outline-none focus:border-0"
                                         type="text"
                                         name=""
                                         id=""
                                         placeholder="Enter total discount.."
+                                        onChange={(e) => {
+                                            e.preventDefault();
+                                            setDiscount(+e.target.value);
+                                        }}
                                     />
-                                    <div className="flex justify-between">
-                                        <h2 className="text-sm font-medium">
-                                            Total discount:
-                                        </h2>
-                                        <h2 className="text-sm font-medium">
-                                            5,000/=
-                                        </h2>
-                                    </div>
                                     <div className="flex justify-between">
                                         <h2 className="text-sm font-medium">
                                             Subtotal:
                                         </h2>
                                         <h2 className="text-sm font-medium">
-                                            5,000/=
+                                            {subTotal.toLocaleString()}
+                                        </h2>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <h2 className="text-sm font-medium">
+                                            Total discount:
+                                        </h2>
+                                        <h2 className="text-sm font-medium">
+                                            {discount.toLocaleString()}
                                         </h2>
                                     </div>
                                     <div className="flex justify-between">
@@ -216,8 +305,18 @@ const CreateSale = ({ auth, products }) => {
                                             Total:
                                         </h2>
                                         <h2 className="text-sm font-medium">
-                                            5,000/=
+                                            {(
+                                                subTotal - discount
+                                            ).toLocaleString()}
                                         </h2>
+                                    </div>
+                                    <div>
+                                        <button
+                                            onClick={submitSale}
+                                            className="bg-violet-400 w-full py-2 text-white mt-2 rounded-sm"
+                                        >
+                                            Submit sale
+                                        </button>
                                     </div>
                                 </div>
                             </div>
